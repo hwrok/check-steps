@@ -28,5 +28,5 @@ Use when always running multiple independent steps is desired, versus interdepen
 
 ## Notes
 
-- Use `if: always()` to ensure this runs regardless of prior step outcomes.
+- Use `if: always()` to ensure this runs regardless of prior step outcomes. Or, scope to specific steps if desired.
 - Non-success outcomes (`failure`, `skipped`, `cancelled`) are treated as failures.
