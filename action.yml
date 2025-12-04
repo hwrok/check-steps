@@ -1,5 +1,5 @@
 name: Check Steps
-description: "Checks step outcomes, prints statuses, and fails if any step did not succeed. Use when always running multiple independent steps is desired, versus interdependent, fail-fast scenarios."
+description: "checks step outcomes, prints statuses, and fails if any step did not succeed"
 
 branding:
   color: 'green'
