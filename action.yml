@@ -1,0 +1,112 @@
+name: Check Steps
+description: "Checks step outcomes, prints statuses, and fails if any step did not succeed. Use when always running multiple independent steps is desired, versus interdependent, fail-fast scenarios."
+
+branding:
+  color: 'green'
+  icon: 'bar-chart-2'
+
+inputs:
+  steps:
+    description: 'newline-separated, pipe-delimited list of "name|outcome" pairs'
+    required: true
+
+outputs:
+  failed:
+    description: 'whether any steps failed'
+    value: ${{ steps.check.outputs.failed }}
+
+runs:
+  using: composite
+  steps:
+    - name: check steps
+      id: check-steps
+      shell: bash
+      run: |
+        RED="\033[0;31m"
+        GREEN="\033[0;32m"
+        YELLOW="\033[0;33m"
+        RESET="\033[0m"
+        
+        print_status() {
+          local desc="$1"
+          local outcome="$2"
+          local padded=$(printf "%-16s" "$desc")
+          case "$outcome" in
+            success) echo -e "  ${padded} : ${GREEN}${outcome}${RESET}" ;;
+            failure) echo -e "  ${padded} : ${RED}${outcome}${RESET}" ;;
+            *) echo -e "  ${padded} : ${YELLOW}${outcome}${RESET}" ;;
+          esac
+        }
+        
+        failures=()
+        successes=()
+        
+        while IFS='|' read -r name outcome; do
+          [ -z "$name" ] && continue
+        
+          if [ "$outcome" = "success" ]; then
+            successes+=("$name:$outcome")
+          else
+            failures+=("$name:$outcome")
+          fi
+        done <<< "${{ inputs.steps }}"
+        
+        comment=""
+        color=""
+        
+        if [ ${#failures[@]} -gt 0 ] && [ ${#successes[@]} -eq 0 ]; then
+          all_failed=(
+            "💀 Wow. A clean sweep of failure. Impressive in its own way. 💀"
+            "🎰 Jackpot! You managed to fail every single check. That takes skill. 🎰"
+            "🧨 Total annihilation. Not a single check survived. 🧨"
+            "🚩 Red flags everywhere. You've set a new standard for broken code. 🚩"
+          )
+          comment="${all_failed[$RANDOM % ${#all_failed[@]}]}"
+          color="${RED}"
+        elif [ ${#failures[@]} -gt 0 ]; then
+          partial_failed=(
+            "💥 Oh noes! Looks like somebody's PR didn't pass all the checks... Better luck next time, champ. 💥"
+            "🚨 Uh oh, spaghetti-o! Someone pushed code that doesn't quite... work. 🚨"
+            "🎻 Sad trombone: your code has failed the vibe check. 🎻"
+            "🔥 This is fine. (It's not fine.) 🔥"
+          )
+          comment="${partial_failed[$RANDOM % ${#partial_failed[@]}]}"
+          color="${RED}"
+        elif [ ${#successes[@]} -gt 0 ] && [ ${#failures[@]} -eq 0 ]; then
+          all_success=(
+            "✨ Look at you, writing code that actually works. What a concept. ✨"
+            "🎉 Congrats! You managed to not break everything. Gold star. 🎉"
+            "👏 Slow clap for meeting the absolute bare minimum. 👏"
+            "🏆 Achievement unlocked: Basic Competency. 🏆"
+          )
+          comment="${all_success[$RANDOM % ${#all_success[@]}]}"
+          color="${GREEN}"
+        fi
+        
+        echo ""
+        echo -e "${color}${comment}${RESET}"
+        echo ""
+        
+        if [ ${#failures[@]} -gt 0 ]; then
+          echo "FAILURES:"
+          for step in "${failures[@]}"; do
+            IFS=':' read -r desc outcome <<< "$step"
+            print_status "$desc" "$outcome"
+          done
+          echo ""
+        fi
+        
+        if [ ${#successes[@]} -gt 0 ]; then
+          echo "SUCCESS:"
+          for step in "${successes[@]}"; do
+            IFS=':' read -r desc outcome <<< "$step"
+            print_status "$desc" "$outcome"
+          done
+        fi
+        
+        if [ ${#failures[@]} -gt 0 ]; then
+          echo "failed=true" >> $GITHUB_OUTPUT
+          exit 1
+        else
+          echo "failed=false" >> $GITHUB_OUTPUT
+        fi
