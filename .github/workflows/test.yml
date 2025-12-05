@@ -1,0 +1,104 @@
+name: Test Check Steps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  all-fail:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: fail-1
+        id: fail-1
+        run: exit 1
+        continue-on-error: true
+
+      - name: fail-2
+        id: fail-2
+        run: exit 1
+        continue-on-error: true
+
+      - name: fail-3
+        id: fail-3
+        run: exit 1
+        continue-on-error: true
+
+      - name: check steps
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          steps: |
+            fail-1|${{ steps.fail-1.outcome }}
+            fail-2|${{ steps.fail-2.outcome }}
+            fail-3|${{ steps.fail-3.outcome }}
+
+  all-success:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: success-1
+        id: success-1
+        run: echo "pass"
+
+      - name: success-2
+        id: success-2
+        run: echo "pass"
+
+      - name: success-3
+        id: success-3
+        run: echo "pass"
+
+      - name: check steps
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          steps: |
+            success-1|${{ steps.success-1.outcome }}
+            success-2|${{ steps.success-2.outcome }}
+            success-3|${{ steps.success-3.outcome }}
+
+  mixed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: pass-1
+        id: pass-1
+        run: echo "pass"
+
+      - name: fail-1
+        id: fail-1
+        run: exit 1
+        continue-on-error: true
+
+      - name: pass-2
+        id: pass-2
+        run: echo "pass"
+
+      - name: fail-2
+        id: fail-2
+        run: exit 1
+        continue-on-error: true
+
+      - name: pass-3
+        id: pass-3
+        run: echo "pass"
+
+      - name: check steps
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          steps: |
+            pass-1|${{ steps.pass-1.outcome }}
+            fail-1|${{ steps.fail-1.outcome }}
+            pass-2|${{ steps.pass-2.outcome }}
+            fail-2|${{ steps.fail-2.outcome }}
+            pass-3|${{ steps.pass-3.outcome }}
