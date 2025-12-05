@@ -110,7 +110,8 @@ runs:
         echo ""
         
         if [ ${#failures[@]} -gt 0 ]; then
-          echo -e "${RED}refer to the actual step for more information...${RESET}"
+          echo -e "${RED}refer to the failing step for more information...${RESET}"
+          echo ""
         
           title="FAILURE"
           bar_len=$(( ${#title} + 2 ))
