@@ -111,6 +111,7 @@ runs:
         
         if [ ${#failures[@]} -gt 0 ]; then
           echo "the following step(s) failed; refer to the actual step for more information"
+          echo ""
         
           title="FAILURE"
           bar_len=$(( ${#title} + 2 ))
