@@ -76,7 +76,7 @@ runs:
           [ -z "$name" ] && continue
         
           name_length=${#name}
-          [ $((name_length + 1)) -gt $padded_length ] && padded_length=$((name_length + 1))
+          [ $name_length -gt $padded_length ] && padded_length=$name_length
         
           if [ "$outcome" = "success" ]; then
             successes+=("$name:$outcome")
@@ -90,9 +90,9 @@ runs:
           local outcome="$2"
           local padded_name=$(printf "%-${padded_length}s" "$desc")
           case "$outcome" in
-            success) echo -e "  ${padded_name} : ${GREEN}${outcome}${RESET}" ;;
-            failure) echo -e "  ${padded_name} : ${RED}${outcome}${RESET}" ;;
-            *) echo -e "  ${padded_name} : ${YELLOW}${outcome}${RESET}" ;;
+            success) echo -e "    ${padded_name} : ${GREEN}${outcome}${RESET}" ;;
+            failure) echo -e "    ${padded_name} : ${RED}${outcome}${RESET}" ;;
+            *) echo -e "    ${padded_name} : ${YELLOW}${outcome}${RESET}" ;;
           esac
         }
         
@@ -110,16 +110,14 @@ runs:
         echo ""
         
         if [ ${#failures[@]} -gt 0 ]; then
+          echo -e "${RED}refer to the actual step for more information...${RESET}"
+        
           title="FAILURE"
           bar_len=$(( ${#title} + 2 ))
         
           echo -e "${RED}┌$(printf '─%.0s' $(seq 1 $bar_len))┐${RESET}"
           echo -e "${RED}│ ${title} │${RESET}"
           echo -e "${RED}└$(printf '─%.0s' $(seq 1 $bar_len))┘${RESET}"
-        
-          echo ""
-          echo "the following step(s) failed; refer to the actual step for more information"
-          echo ""
         
           for step in "${failures[@]}"; do
             IFS=':' read -r desc outcome <<< "$step"
