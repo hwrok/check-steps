@@ -76,7 +76,7 @@ runs:
           [ -z "$name" ] && continue
         
           name_length=${#name}
-          [ $((name_length + 2)) -gt $padded_length ] && padded_length=$((name_length + 2))
+          [ $((name_length + 1)) -gt $padded_length ] && padded_length=$((name_length + 1))
         
           if [ "$outcome" = "success" ]; then
             successes+=("$name:$outcome")
@@ -112,7 +112,13 @@ runs:
         echo ""
         
         if [ ${#failures[@]} -gt 0 ]; then
-          echo "FAILURES:"
+          title="FAILURE"
+          bar_len=$(( ${#title} + 2 ))
+        
+          echo -e "${RED}┌$(printf '─%.0s' $(seq 1 $bar_len))┐${RESET}"
+          echo -e "${RED}│ ${title} │${RESET}"
+          echo -e "${RED}└$(printf '─%.0s' $(seq 1 $bar_len))┘${RESET}"
+        
           for step in "${failures[@]}"; do
             IFS=':' read -r desc outcome <<< "$step"
             print_status "$desc" "$outcome"
@@ -121,7 +127,13 @@ runs:
         fi
         
         if [ ${#successes[@]} -gt 0 ]; then
-          echo "SUCCESS:"
+          title="SUCCESS"
+          bar_len=$(( ${#title} + 2 ))
+        
+          echo -e "${GREEN}┌$(printf '─%.0s' $(seq 1 $bar_len))┐${RESET}"
+          echo -e "${GREEN}│ ${title} │${RESET}"
+          echo -e "${GREEN}└$(printf '─%.0s' $(seq 1 $bar_len))┘${RESET}"
+        
           for step in "${successes[@]}"; do
             IFS=':' read -r desc outcome <<< "$step"
             print_status "$desc" "$outcome"
