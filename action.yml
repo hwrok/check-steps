@@ -139,6 +139,7 @@ runs:
             IFS=':' read -r desc outcome <<< "$step"
             print_status "$desc" "$outcome"
           done
+          echo ""
         fi
         
         if [ ${#failures[@]} -gt 0 ]; then
