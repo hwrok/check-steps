@@ -96,22 +96,22 @@ runs:
           esac
         }
         
+        echo ""
         if [ ${#failures[@]} -gt 0 ] && [ ${#successes[@]} -eq 0 ]; then
           comment="${all_failed[$RANDOM % ${#all_failed[@]}]}"
-          color="${RED}"
+          echo -e "${RED}${comment}${RESET}"
         elif [ ${#failures[@]} -gt 0 ]; then
           comment="${partial_failed[$RANDOM % ${#partial_failed[@]}]}"
-          color="${RED}"
+          echo -e "${RED}${comment}${RESET}"
         elif [ ${#successes[@]} -gt 0 ] && [ ${#failures[@]} -eq 0 ]; then
           comment="${all_success[$RANDOM % ${#all_success[@]}]}"
-          color="${GREEN}"
+          echo -e "${GREEN}${comment}${RESET}"
         fi
-        
-        echo ""
-        echo -e "${color}${comment}${RESET}"
         echo ""
         
         if [ ${#failures[@]} -gt 0 ]; then
+          echo "the following step(s) failed; refer to the actual step for more information"
+        
           title="FAILURE"
           bar_len=$(( ${#title} + 2 ))
         
