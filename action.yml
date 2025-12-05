@@ -110,15 +110,16 @@ runs:
         echo ""
         
         if [ ${#failures[@]} -gt 0 ]; then
-          echo "the following step(s) failed; refer to the actual step for more information"
-          echo ""
-        
           title="FAILURE"
           bar_len=$(( ${#title} + 2 ))
         
           echo -e "${RED}┌$(printf '─%.0s' $(seq 1 $bar_len))┐${RESET}"
           echo -e "${RED}│ ${title} │${RESET}"
           echo -e "${RED}└$(printf '─%.0s' $(seq 1 $bar_len))┘${RESET}"
+        
+          echo ""
+          echo "the following step(s) failed; refer to the actual step for more information"
+          echo ""
         
           for step in "${failures[@]}"; do
             IFS=':' read -r desc outcome <<< "$step"
